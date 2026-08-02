@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: gotrain_redis
+    ports:
+      - "6379:6379"
+    restart: always
+
+  gotrain:
+    image: rijdendetreinen/gotrain:latest
+    container_name: gotrain_archiver
+    command: ["./gotrain", "archiver"]
+    volumes:
+      - ./config/GoTrain.yaml:/app/config/config.yaml:ro
+    depends_on:
+      - redis
+    restart: always
+
+  data-interpreter:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    container_name: python_dataset_builder
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    depends_on:
+      - gotrain
+      - redis
+    restart: always
