@@ -2,7 +2,7 @@ import dotenv
 import nsAPI
 import sys
 import database
-from datetime import datetime
+from datetime import datetime, timedelta
 from time import sleep
 
 dotenv.load_dotenv()
@@ -35,6 +35,12 @@ def parse_datetime(value: str):
         return None
     return datetime.strptime(value, "%Y-%m-%dT%H:%M:%S%z")
 
+def get_service_date(planned_timestamp:datetime):
+    if planned_timestamp.hour < 4:
+        return (planned_timestamp - timedelta(days=1)).date()
+    else:
+        return planned_timestamp.date()
+
 while True:
     for uicCode in uicCodes:
         try:
@@ -44,7 +50,7 @@ while True:
             for arrival in arrivals["arrivals"]:
                 database.add_arrival_info(
                     uicCode=uicCode,
-                    time=parse_datetime(arrival.get("plannedDateTime")).date(),
+                    serviceDate=get_service_date(arrival.get("plannedDateTime")).date(),
                     productNumber=arrival.get("product").get("number"),
                     plannedArrival=parse_datetime(arrival.get("plannedDateTime")),
                     actualArrival=parse_datetime(arrival.get("actualDateTime")),
@@ -65,7 +71,7 @@ while True:
                 for departure in departures["departures"]:
                     database.add_departure_info(
                         uicCode=uicCode,
-                        time=parse_datetime(departure.get("plannedDateTime")).date(),
+                        serviceDate=get_service_date(departure.get("plannedDateTime")).date(),
                         productNumber=departure.get("product").get("number"),
                         plannedDeparture=parse_datetime(departure.get("plannedDateTime")),
                         actualDeparture=parse_datetime(departure.get("actualDateTime")),
