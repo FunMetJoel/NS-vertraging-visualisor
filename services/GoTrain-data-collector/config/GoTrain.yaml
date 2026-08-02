@@ -1,0 +1,22 @@
+---
+source:
+  server: tcp://127.0.0.01:12345
+  envelopes:
+    arrivals: "/RIG/InfoPlusDASInterface4"
+    departures: "/RIG/InfoPlusDVSInterface4"
+    services: "/RIG/InfoPlusRITInterface5"
+api:
+  address: ":8080"
+stores:
+  location: /var/cache/gotrain
+archive:
+  address: "redis:6379"
+  password: ""
+  db: 0
+prometheus:
+  enabled: true
+  address: :2121
+#sentry:
+#  dsn: https://example@sentry.io/123456
+#  warnings: true
+#  environment: production
